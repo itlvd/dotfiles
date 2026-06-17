@@ -40,7 +40,12 @@ apt_install() {
     build-essential \
     unzip \
     jq \
+    xorg \
+    xserver-xorg \
+    xserver-xorg-input-libinput \
     x11-xserver-utils \
+    xinput \
+    dbus-x11 \
     xdg-utils \
     dex \
     i3 \
@@ -55,7 +60,6 @@ apt_install() {
     brightnessctl \
     alacritty \
     feh \
-    picom \
     flameshot \
     xclip \
     xsel \
@@ -66,6 +70,7 @@ apt_install() {
     zsh \
     fzf \
     command-not-found
+
 }
 
 install_brave() {
