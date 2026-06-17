@@ -1,0 +1,92 @@
+* {
+    bg:            #1e1e2e;
+    bg-alt:        #181825;
+    fg:            #cdd6f4;
+    fg-muted:      #6c7086;
+    accent:        #89b4fa;
+    urgent:        #f38ba8;
+
+    background-color: transparent;
+    text-color: @fg;
+
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+window {
+    width: 38%;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 14px;
+    background-color: @bg;
+    padding: 18px;
+}
+
+mainbox {
+    background-color: @bg;
+    spacing: 12px;
+    children: [ inputbar, listview, message ];
+}
+
+inputbar {
+    background-color: @bg-alt;
+    border-radius: 10px;
+    padding: 10px 14px;
+    spacing: 10px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    text-color: @accent;
+    font: "JetBrainsMono Nerd Font Bold 12";
+}
+
+entry {
+    placeholder: "Search apps...";
+    placeholder-color: @fg-muted;
+    text-color: @fg;
+}
+
+listview {
+    lines: 8;
+    columns: 1;
+    spacing: 6px;
+    cycle: true;
+    dynamic: true;
+    scrollbar: false;
+    background-color: @bg;
+}
+
+element {
+    orientation: horizontal;
+    border-radius: 10px;
+    padding: 9px 12px;
+    spacing: 12px;
+    background-color: transparent;
+}
+
+element selected {
+    background-color: @accent;
+    text-color: @bg;
+}
+
+element-icon {
+    size: 24px;
+    background-color: transparent;
+}
+
+element-text {
+    vertical-align: 0.5;
+    background-color: transparent;
+    text-color: inherit;
+}
+
+message {
+    background-color: @bg-alt;
+    border-radius: 10px;
+    padding: 8px;
+}
+
+textbox {
+    text-color: @fg-muted;
+    background-color: transparent;
+}

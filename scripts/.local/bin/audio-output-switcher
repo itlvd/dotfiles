@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+choice=$(
+  pactl list sinks | awk '
+    /^[[:space:]]*Name: / {
+      name=$2
+    }
+    /^[[:space:]]*Description: / {
+      sub(/^[[:space:]]*Description: /, "")
+      print $0 " | " name
+    }
+  ' | rofi -dmenu -p "Audio Output"
+)
+
+[ -z "$choice" ] && exit 0
+
+sink="${choice##* | }"
+
+pactl set-default-sink "$sink"
+
+pactl list short sink-inputs | cut -f1 | while read -r input; do
+  pactl move-sink-input "$input" "$sink"
+done
+
+notify-send "Audio Output" "Switched to: ${choice%% | *}"
