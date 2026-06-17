@@ -66,6 +66,7 @@ apt_install() {
     network-manager-gnome \
     blueman \
     fonts-font-awesome \
+    papirus-icon-theme\
     fonts-jetbrains-mono \
     zsh \
     fzf \
