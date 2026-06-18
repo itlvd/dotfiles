@@ -1,0 +1,33 @@
+general {
+        colors = true
+        interval = 2
+        color_good = "#a6e3a1"
+        color_degraded = "#f9e2af"
+        color_bad = "#f38ba8"
+        output_format = "i3bar"
+        separator = "  "
+}
+
+order += "memory"
+order += "cpu_usage"
+order += "load"
+order += "tztime local"
+
+memory {
+        format = "MEM %used/%total"
+        threshold_degraded = "80%"
+        format_degraded = "MEM %used/%total"
+}
+
+cpu_usage {
+        format = "CPU %usage"
+}
+
+load {
+        format = "LOAD %1min"
+        max_threshold = "5"
+}
+
+tztime local {
+        format = "%a %d %b  %H:%M"
+}

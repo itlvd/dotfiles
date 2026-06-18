@@ -12,9 +12,56 @@ exec --no-startup-id xrandr --output HDMI-0 --primary --auto --output DP-4 --aut
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 set $mod Mod4
 
+# Catppuccin Mocha
+set $rosewater #f5e0dc
+set $flamingo  #f2cdcd
+set $pink      #f5c2e7
+set $mauve     #cba6f7
+set $red       #f38ba8
+set $maroon    #eba0ac
+set $peach     #fab387
+set $yellow    #f9e2af
+set $green     #a6e3a1
+set $teal      #94e2d5
+set $sky       #89dceb
+set $sapphire  #74c7ec
+set $blue      #89b4fa
+set $lavender  #b4befe
+set $text      #cdd6f4
+set $subtext1  #bac2de
+set $subtext0  #a6adc8
+set $overlay2  #9399b2
+set $overlay1  #7f849c
+set $overlay0  #6c7086
+set $surface2  #585b70
+set $surface1  #45475a
+set $surface0  #313244
+set $base      #1e1e2e
+set $mantle    #181825
+set $crust     #11111b
+
+exec_always --no-startup-id xsetroot -solid "#1e1e2e"
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
-font pango:monospace 8
+font pango:JetBrains Mono 9
+
+# Layout polish
+default_border pixel 2
+default_floating_border pixel 2
+hide_edge_borders smart
+title_align center
+gaps inner 8
+gaps outer 4
+smart_gaps on
+
+# Window colors: border background text indicator child_border
+client.focused          $blue     $surface0 $text     $rosewater $blue
+client.focused_inactive $surface1 $mantle   $subtext1 $surface1  $surface1
+client.unfocused        $surface0 $mantle   $subtext0 $surface0  $surface0
+client.urgent           $red      $base     $text     $red       $red
+client.placeholder      $surface0 $mantle   $overlay1 $surface0  $surface0
+client.background       $base
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
@@ -50,7 +97,7 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod+Return exec exec alacritty
+bindsym $mod+Return exec --no-startup-id alacritty -e tmux new-session -A -s main
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -116,11 +163,11 @@ bindsym $mod+a focus parent
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
-set $ws1 "1: browser"
-set $ws2 "2: vscode"
-set $ws3 "3: terminal"
-set $ws4 "4: brave"
-set $ws5 "5: monitor"
+set $ws1 "1:web"
+set $ws2 "2:code"
+set $ws3 "3:term"
+set $ws4 "4:brave"
+set $ws5 "5:sys"
 set $ws6 "6"
 set $ws7 "7"
 set $ws8 "8"
@@ -210,5 +257,26 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
-        status_command i3status
+        status_command ~/.local/bin/i3-catppuccin-status
+        position top
+        mode dock
+        modifier none
+        font pango:JetBrains Mono 9
+        tray_output primary
+        strip_workspace_numbers no
+        workspace_min_width 44
+        binding_mode_indicator yes
+
+        colors {
+                background $base
+                statusline $text
+                separator  $overlay0
+
+                # border    background text
+                focused_workspace  $blue     $blue     $crust
+                active_workspace   $surface1 $surface1 $text
+                inactive_workspace $base     $base     $subtext1
+                urgent_workspace   $red      $red      $crust
+                binding_mode       $peach    $peach    $crust
+        }
 }

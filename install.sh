@@ -51,6 +51,7 @@ apt_install() {
     i3 \
     i3status \
     i3lock \
+    tmux \
     rofi \
     dunst \
     libnotify-bin \
@@ -185,8 +186,10 @@ apply_dotfiles() {
   cd "$DOTFILES_DIR"
 
   stow_module i3
+  stow_module i3status
   stow_module rofi
   stow_module dunst
+  stow_module tmux
   stow_module zsh
   stow_module scripts
   stow_module alacritty

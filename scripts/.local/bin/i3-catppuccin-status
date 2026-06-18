@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+json_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+block() {
+  local text="$1"
+  local color="$2"
+  printf '{"full_text":"%s","color":"%s"}' "$(json_escape "$text")" "$color"
+}
+
+volume() {
+  if ! command -v pactl >/dev/null 2>&1; then
+    printf 'VOL n/a'
+    return
+  fi
+
+  local muted volume
+  muted="$(pactl get-sink-mute @DEFAULT_SINK@ 2>/dev/null | awk '{print $2}' || true)"
+  volume="$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | awk -F/ 'NR==1 {gsub(/ /, "", $2); print $2}' || true)"
+
+  if [[ "$muted" == "yes" ]]; then
+    printf 'VOL muted'
+  elif [[ -n "$volume" ]]; then
+    printf 'VOL %s' "$volume"
+  else
+    printf 'VOL n/a'
+  fi
+}
+
+memory() {
+  awk '
+    /^MemTotal:/ { total=$2 }
+    /^MemAvailable:/ { avail=$2 }
+    END {
+      used=total-avail
+      printf "MEM %.1f/%.1fG", used/1024/1024, total/1024/1024
+    }
+  ' /proc/meminfo
+}
+
+update_cpu_usage() {
+  local cpu user nice system idle iowait irq softirq steal guest guest_nice
+  read -r cpu user nice system idle iowait irq softirq steal guest guest_nice < /proc/stat
+  local idle_all=$((idle + iowait))
+  local total=$((user + nice + system + idle + iowait + irq + softirq + steal))
+
+  if [[ -n "${PREV_TOTAL:-}" && -n "${PREV_IDLE:-}" ]]; then
+    local total_delta=$((total - PREV_TOTAL))
+    local idle_delta=$((idle_all - PREV_IDLE))
+    if (( total_delta > 0 )); then
+      CPU_TEXT="$(printf 'CPU %d%%' $(((100 * (total_delta - idle_delta)) / total_delta)))"
+    else
+      CPU_TEXT="CPU 0%"
+    fi
+  else
+    CPU_TEXT="CPU --"
+  fi
+
+  PREV_TOTAL=$total
+  PREV_IDLE=$idle_all
+}
+
+load_avg() {
+  awk '{print "LOAD " $1}' /proc/loadavg
+}
+
+internal_ip() {
+  local ip
+  ip="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i=1; i<=NF; i++) if ($i == "src") {print $(i+1); exit}}' || true)"
+
+  if [[ -n "$ip" ]]; then
+    printf 'IP %s' "$ip"
+  else
+    printf 'IP n/a'
+  fi
+}
+
+clock() {
+  date '+%a %d %b  %H:%M'
+}
+
+printf '{"version":1}\n[\n'
+printf '[]'
+
+while true; do
+  update_cpu_usage
+
+  printf ',\n['
+  block "$(volume)" "#a6e3a1"
+  printf ','
+  block "$(memory)" "#cdd6f4"
+  printf ','
+  block "$CPU_TEXT" "#89b4fa"
+  printf ','
+  block "$(load_avg)" "#f9e2af"
+  printf ','
+  block "$(internal_ip)" "#94e2d5"
+  printf ','
+  block "$(clock)" "#b4befe"
+  printf ']'
+  sleep 2
+done
