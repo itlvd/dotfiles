@@ -119,7 +119,7 @@ bindsym $mod+a focus parent
 set $ws1 "1: browser"
 set $ws2 "2: vscode"
 set $ws3 "3: terminal"
-set $ws4 "4: telegram"
+set $ws4 "4: brave"
 set $ws5 "5: monitor"
 set $ws6 "6"
 set $ws7 "7"
@@ -153,7 +153,7 @@ bindsym $mod+Shift+0 move container to workspace number $ws10
 
 assign [class="firefox"]   $ws1
 assign [class="code"]      $ws2
-assign [class="Telegram"]  $ws4
+assign [class="brave-browser"]  $ws4
 
 workspace $ws1 output HDMI-0
 workspace $ws2 output HDMI-0
@@ -166,8 +166,10 @@ workspace $ws5 output DP-4
 exec --no-startup-id i3-msg 'workspace number $ws1; exec firefox'
 exec --no-startup-id i3-msg 'workspace number $ws2; exec code --ozone-platform=x11'
 exec --no-startup-id i3-msg 'workspace number $ws3; exec alacritty'
-exec --no-startup-id i3-msg 'workspace number $ws4; exec /home/levandong/Downloads/tsetup.6.9.3/Telegram/Telegram'
+exec --no-startup-id i3-msg 'workspace number $ws4; exec brave-browser --ozone-platform=x11'
+# exec --no-startup-id i3-msg 'workspace number $ws4; exec /home/levandong/Downloads/tsetup.6.9.3/Telegram/Telegram'
 exec --no-startup-id dunst -config ~/.config/dunst/dunstrc
+exec --no-startup-id fcitx5 -d
 
 bindsym $mod+Shift+e exec --no-startup-id ~/.local/bin/powermenu
 bindsym $mod+Shift+o exec --no-startup-id ~/.local/bin/audio-output-switcher
