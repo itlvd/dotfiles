@@ -61,7 +61,6 @@ apt_install() {
     brightnessctl \
     alacritty \
     feh \
-    flameshot \
     xclip \
     xsel \
     network-manager-gnome \
