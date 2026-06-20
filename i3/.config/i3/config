@@ -40,7 +40,10 @@ set $base      #1e1e2e
 set $mantle    #181825
 set $crust     #11111b
 
-exec_always --no-startup-id xsetroot -solid "#1e1e2e"
+# Wallpaper (feh) + compositor (picom for transparency & blur).
+# pkill guard keeps a single picom instance across i3 reloads/restarts.
+exec_always --no-startup-id feh --bg-fill ~/Pictures/Wallpapers/wallpaper.jpg
+exec_always --no-startup-id pkill -x picom; picom -b
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -97,7 +100,7 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod+Return exec --no-startup-id alacritty -e tmux new-session -A -s main
+bindsym $mod+Return exec --no-startup-id alacritty
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -254,29 +257,6 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-# Start i3bar to display a workspace bar (plus the system information i3status
-# finds out, if available)
-bar {
-        status_command ~/.local/bin/i3-catppuccin-status
-        position top
-        mode dock
-        modifier none
-        font pango:JetBrains Mono 9
-        tray_output primary
-        strip_workspace_numbers no
-        workspace_min_width 44
-        binding_mode_indicator yes
-
-        colors {
-                background $base
-                statusline $text
-                separator  $overlay0
-
-                # border    background text
-                focused_workspace  $blue     $blue     $crust
-                active_workspace   $surface1 $surface1 $text
-                inactive_workspace $base     $base     $subtext1
-                urgent_workspace   $red      $red      $crust
-                binding_mode       $peach    $peach    $crust
-        }
-}
+# Status bar: polybar (floating Catppuccin pills, one bar per monitor).
+# launch.sh kills old instances first, so exec_always is safe on i3 reload.
+exec_always --no-startup-id ~/.config/polybar/launch.sh

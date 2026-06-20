@@ -51,6 +51,7 @@ apt_install() {
     i3 \
     i3status \
     i3lock \
+    polybar \
     tmux \
     rofi \
     dunst \
@@ -61,6 +62,7 @@ apt_install() {
     brightnessctl \
     alacritty \
     feh \
+    picom \
     xclip \
     xsel \
     network-manager-gnome \
@@ -70,8 +72,86 @@ apt_install() {
     fonts-jetbrains-mono \
     zsh \
     fzf \
-    command-not-found
+    command-not-found \
+    fcitx5 \
+    fcitx5-unikey \
+    fcitx5-frontend-gtk4 \
+    fcitx5-frontend-gtk3 \
+    fcitx5-frontend-qt5 \
+    fcitx5-config-qt \
+    im-config
 
+}
+
+remove_snap() {
+  log "Removing snap and snapd..."
+
+  if ! command -v snap >/dev/null 2>&1 && ! dpkg -l snapd >/dev/null 2>&1; then
+    log "Snap already removed."
+    return
+  fi
+
+  # Remove installed snaps. Some snaps depend on others (e.g. core/bases),
+  # so loop until nothing is left rather than relying on a single pass.
+  if command -v snap >/dev/null 2>&1; then
+    local attempts=0
+    while [ "$attempts" -lt 10 ]; do
+      local snaps
+      snaps="$(snap list 2>/dev/null | awk 'NR>1 {print $1}')"
+      [ -z "$snaps" ] && break
+
+      local s
+      for s in $snaps; do
+        sudo snap remove --purge "$s" 2>/dev/null || true
+      done
+      attempts=$((attempts + 1))
+    done
+  fi
+
+  # Stop and purge snapd itself.
+  sudo systemctl stop snapd.socket snapd.service 2>/dev/null || true
+  sudo apt purge -y snapd || true
+  sudo apt-mark hold snapd 2>/dev/null || true
+
+  # Clean up leftover snap directories.
+  sudo rm -rf /var/cache/snapd
+  rm -rf "$HOME/snap"
+
+  # Block snapd from being reinstalled as a dependency.
+  sudo tee /etc/apt/preferences.d/nosnap.pref >/dev/null <<'EOF'
+Package: snapd
+Pin: release a=*
+Pin-Priority: -10
+EOF
+
+  log "Snap removed and pinned so it won't be reinstalled."
+}
+
+install_firefox() {
+  log "Installing Firefox (deb from Mozilla APT repo)..."
+
+  if command -v firefox >/dev/null 2>&1 && ! firefox --version 2>/dev/null | grep -qi snap; then
+    log "Firefox already installed."
+    return
+  fi
+
+  sudo install -d -m 0755 /etc/apt/keyrings
+
+  wget -qO- https://packages.mozilla.org/apt/repo-signing-key.gpg \
+    | sudo tee /etc/apt/keyrings/packages.mozilla.org.asc >/dev/null
+
+  echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" \
+    | sudo tee /etc/apt/sources.list.d/mozilla.list >/dev/null
+
+  # Prefer the Mozilla repo over the Ubuntu snap-transitional firefox package.
+  sudo tee /etc/apt/preferences.d/mozilla >/dev/null <<'EOF'
+Package: *
+Pin: origin packages.mozilla.org
+Pin-Priority: 1000
+EOF
+
+  sudo apt update
+  sudo apt install -y firefox
 }
 
 install_brave() {
@@ -133,6 +213,33 @@ clone_or_update() {
   fi
 }
 
+install_nerd_fonts() {
+  log "Installing JetBrainsMono Nerd Font..."
+
+  local font_dir="$HOME/.local/share/fonts"
+
+  if fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font"; then
+    log "JetBrainsMono Nerd Font already installed."
+    return
+  fi
+
+  mkdir -p "$font_dir"
+
+  local tmp
+  tmp="$(mktemp -d)"
+  local url="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+
+  if curl -fsSLo "$tmp/JetBrainsMono.zip" "$url"; then
+    unzip -o -q "$tmp/JetBrainsMono.zip" -d "$font_dir/JetBrainsMonoNerd" \
+      && fc-cache -f "$font_dir" >/dev/null \
+      && log "JetBrainsMono Nerd Font installed."
+  else
+    warn "Không tải được JetBrainsMono Nerd Font, polybar sẽ thiếu icon. Cài thủ công từ nerd-fonts."
+  fi
+
+  rm -rf "$tmp"
+}
+
 install_oh_my_zsh() {
   log "Installing Oh My Zsh and plugins..."
 
@@ -163,11 +270,40 @@ install_oh_my_zsh() {
     "$zsh_custom/plugins/fzf-tab"
 }
 
+override_conflicts() {
+  local module="$1"
+  local src="$DOTFILES_DIR/$module"
+
+  # For each file the module deploys, drop any existing real file/dir at the target
+  # so stow can replace it with its symlink. Skip anything that already resolves into
+  # the dotfiles repo (a direct stow symlink, or a file inside a folded directory
+  # symlink) — those are already managed by stow and must NOT be deleted.
+  while IFS= read -r -d '' file; do
+    local rel="${file#"$src"/}"
+    local target="$HOME/$rel"
+
+    # Nothing there (and not a dangling symlink) -> stow handles it.
+    [ -e "$target" ] || [ -L "$target" ] || continue
+
+    # Already pointing into the repo? Leave it for stow --restow.
+    local real
+    real="$(realpath -m "$target" 2>/dev/null || printf '%s' "$target")"
+    case "$real/" in
+      "$DOTFILES_DIR"/*) continue ;;
+    esac
+
+    # Genuine user file/dir -> override it.
+    warn "Overriding existing $target"
+    rm -rf "$target"
+  done < <(find "$src" -type f -print0)
+}
+
 stow_module() {
   local module="$1"
 
   if [ -d "$DOTFILES_DIR/$module" ]; then
     log "Stowing $module..."
+    override_conflicts "$module"
     stow --dir="$DOTFILES_DIR" --target="$HOME" --restow "$module"
   else
     warn "Bỏ qua $module vì không có folder: $DOTFILES_DIR/$module"
@@ -186,6 +322,7 @@ apply_dotfiles() {
 
   stow_module i3
   stow_module i3status
+  stow_module polybar
   stow_module rofi
   stow_module dunst
   stow_module tmux
@@ -232,6 +369,35 @@ setup_default_shell() {
   fi
 }
 
+setup_fcitx5() {
+  log "Setting up fcitx5 + Unikey (Vietnamese input)..."
+
+  local profile="$HOME/.profile"
+  touch "$profile"
+
+  # IM environment variables — needed so GUI apps pick up fcitx5.
+  # Appended idempotently so re-running install.sh doesn't duplicate them.
+  local line
+  for line in \
+    "export GTK_IM_MODULE=fcitx" \
+    "export QT_IM_MODULE=fcitx" \
+    "export XMODIFIERS=@im=fcitx"; do
+    if ! grep -qxF "$line" "$profile"; then
+      echo "$line" >> "$profile"
+      log "Added to ~/.profile: $line"
+    fi
+  done
+
+  # Select fcitx5 as the active input method framework for the X session.
+  if command -v im-config >/dev/null 2>&1; then
+    im-config -n fcitx5
+  else
+    warn "Không có im-config, bỏ qua. fcitx5 vẫn được autostart trong i3 (fcitx5 -d)."
+  fi
+
+  log "fcitx5 đã cài. Logout/login lại, rồi dùng fcitx5-config-qt để thêm Unikey nếu chưa có."
+}
+
 create_common_dirs() {
   log "Creating common directories..."
 
@@ -248,9 +414,13 @@ main() {
 
   create_common_dirs
   apt_install
+  remove_snap
+  install_firefox
+  install_nerd_fonts
   install_oh_my_zsh
   apply_dotfiles
   setup_default_shell
+  setup_fcitx5
 
   log "Done."
   echo
@@ -259,6 +429,8 @@ main() {
   echo "  2. Logout/login lại để shell đổi hiệu lực."
   echo "  3. Reload i3: i3-msg reload && i3-msg restart"
   echo "  4. Nếu stow báo conflict, backup file cũ rồi chạy lại install.sh."
+  echo "  5. Gõ tiếng Việt: logout/login, mở fcitx5-config-qt thêm Unikey,"
+  echo "     rồi chuyển input bằng Ctrl+Space."
 }
 
 main "$@"

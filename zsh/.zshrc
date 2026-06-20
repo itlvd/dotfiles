@@ -148,13 +148,15 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# Auto-start tmux for normal interactive terminals.
-if [[ -o interactive ]] \
-  && [[ -t 0 && -t 1 ]] \
-  && [[ -z "$TMUX" ]] \
-  && [[ -z "$DISABLE_AUTO_TMUX" ]] \
-  && [[ "$TERM" != "dumb" ]] \
-  && [[ "$TERM_PROGRAM" != "vscode" ]] \
-  && command -v tmux >/dev/null 2>&1; then
-  exec tmux new-session -A -s main
-fi
+# Auto-start tmux for normal interactive terminals. (Disabled — không tự vào tmux nữa)
+# if [[ -o interactive ]] \
+#   && [[ -t 0 && -t 1 ]] \
+#   && [[ -z "$TMUX" ]] \
+#   && [[ -z "$DISABLE_AUTO_TMUX" ]] \
+#   && [[ "$TERM" != "dumb" ]] \
+#   && [[ "$TERM_PROGRAM" != "vscode" ]] \
+#   && command -v tmux >/dev/null 2>&1; then
+#   exec tmux new-session -A -s main
+# fi
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
