@@ -407,6 +407,35 @@ create_common_dirs() {
   mkdir -p "$HOME/Pictures/Wallpapers"
 }
 
+install_wallpaper() {
+  log "Downloading wallpaper..."
+
+  local dest="$HOME/Pictures/Wallpapers/wallpaper.jpg"
+
+  if [ -f "$dest" ]; then
+    log "Wallpaper already exists at $dest."
+    return
+  fi
+
+  mkdir -p "$HOME/Pictures/Wallpapers"
+
+  # Catppuccin-themed wallpapers. First reachable URL wins.
+  local urls=(
+    "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/landscapes/evening-sky.png"
+    "https://raw.githubusercontent.com/zhichaoh/catppuccin-wallpapers/main/minimalistic/mocha_cat.png"
+  )
+
+  local u
+  for u in "${urls[@]}"; do
+    if curl -fsSL --max-time 30 -o "$dest" "$u"; then
+      log "Wallpaper downloaded to $dest."
+      return
+    fi
+  done
+
+  warn "Không tải được wallpaper. Tự bỏ ảnh vào $dest (i3 trỏ tới path này)."
+}
+
 main() {
   require_apt
 
@@ -414,6 +443,7 @@ main() {
 
   create_common_dirs
   apt_install
+  install_wallpaper
   remove_snap
   install_firefox
   install_nerd_fonts
