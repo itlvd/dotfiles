@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Launch one polybar (bar/main) per connected monitor.
-# Tray is enabled only on the primary monitor via POLY_TRAY.
+# Tray is enabled only on the primary monitor via POLY_MODULES_RIGHT.
 set -u
 
 CONFIG="$HOME/.config/polybar/config.ini"
@@ -16,11 +15,11 @@ while IFS= read -r line; do
   [ -z "$line" ] && continue
   mon="${line%%:*}"
   if [ "$mon" = "$primary" ]; then
-    POLY_TRAY="right"
+    POLY_MODULES_RIGHT="pulseaudio mic network filesystem memory cpu date powermenu systray"
   else
-    POLY_TRAY="none"
+    POLY_MODULES_RIGHT="pulseaudio mic network filesystem memory cpu date powermenu"
   fi
-  MONITOR="$mon" POLY_TRAY="$POLY_TRAY" polybar --reload --config="$CONFIG" main >/dev/null 2>&1 &
+  MONITOR="$mon" POLY_MODULES_RIGHT="$POLY_MODULES_RIGHT" polybar --reload --config="$CONFIG" main >/dev/null 2>&1 &
 done < <(polybar -m 2>/dev/null)
 
 echo "polybar launched on: $(polybar -m 2>/dev/null | sed 's/:.*//' | paste -sd' ')"
