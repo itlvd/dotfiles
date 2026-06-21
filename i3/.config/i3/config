@@ -4,8 +4,9 @@
 # Should you change your keyboard layout some time, delete
 # this file and re-run i3-config-wizard(1).
 #
-# Monitor layout
-exec --no-startup-id xrandr --output HDMI-0 --primary --auto --output DP-4 --auto --left-of HDMI-0
+# Monitor layout is configured in ~/.xprofile (sourced by GDM3 before i3 starts)
+# so the outputs exist before i3 assigns workspaces to them. Do NOT also run xrandr
+# here as a non-blocking exec — that reintroduces the startup race.
 
 # i3 config file (v4)
 #
@@ -168,7 +169,7 @@ bindsym $mod+a focus parent
 # We use variables to avoid repeating the names in multiple places.
 set $ws1 "1:web"
 set $ws2 "2:code"
-set $ws3 "3:term"
+set $ws3 "3:telg"
 set $ws4 "4:brave"
 set $ws5 "5:sys"
 set $ws6 "6"
@@ -201,23 +202,25 @@ bindsym $mod+Shift+8 move container to workspace number $ws8
 bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
-assign [class="firefox"]   $ws1
-assign [class="code"]      $ws2
-assign [class="brave-browser"]  $ws4
+assign [class="firefox"]           $ws1
+assign [class="code"]              $ws2
+assign [class="TelegramDesktop"]   $ws3
+assign [class="(?i)brave-browser"] $ws4
 
 workspace $ws1 output HDMI-0
 workspace $ws2 output HDMI-0
-workspace $ws3 output HDMI-0
 
-workspace $ws4 output DP-4
-workspace $ws5 output DP-4
+workspace $ws3 output DP-5
+workspace $ws4 output DP-5
+workspace $ws5 output DP-5
 
 # Autostart applications
 exec --no-startup-id i3-msg 'workspace number $ws1; exec firefox'
 exec --no-startup-id i3-msg 'workspace number $ws2; exec code --ozone-platform=x11'
-exec --no-startup-id i3-msg 'workspace number $ws3; exec alacritty'
+# exec --no-startup-id i3-msg 'workspace number $ws3; exec alacritty'
+exec --no-startup-id /home/levandong/Downloads/tsetup.6.9.3/Telegram/Telegram
 exec --no-startup-id i3-msg 'workspace number $ws4; exec brave-browser --ozone-platform=x11'
-# exec --no-startup-id i3-msg 'workspace number $ws4; exec /home/levandong/Downloads/tsetup.6.9.3/Telegram/Telegram'
+
 exec --no-startup-id dunst -config ~/.config/dunst/dunstrc
 exec --no-startup-id fcitx5 -d
 
