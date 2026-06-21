@@ -56,7 +56,7 @@ hide_edge_borders smart
 title_align center
 gaps inner 8
 gaps outer 4
-smart_gaps on
+smart_gaps off
 
 # Window colors: border background text indicator child_border
 client.focused          $blue     $surface0 $text     $rosewater $blue
