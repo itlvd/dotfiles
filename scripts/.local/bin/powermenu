@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
-chosen=$(printf "Lock\nLogout\nReboot\nShutdown" | rofi -dmenu -i -p "Power")
+lock="󰌾  Lock"
+suspend="󰤄  Suspend"
+logout="󰍃  Logout"
+reboot="󰑓  Reboot"
+shutdown="󰐥  Shutdown"
+
+chosen=$(printf '%s\n' "$lock" "$suspend" "$logout" "$reboot" "$shutdown" | \
+    rofi -dmenu \
+         -p "" \
+         -no-custom \
+         -theme ~/.config/rofi/themes/power-menu.rasi)
 
 case "$chosen" in
-  Lock)
-    i3lock
-    ;;
-  Logout)
-    i3-msg exit
-    ;;
-  Reboot)
-    systemctl reboot
-    ;;
-  Shutdown)
-    systemctl poweroff
-    ;;
+    "$lock")     i3lock -c 000000 ;;
+    "$suspend")  systemctl suspend ;;
+    "$logout")   i3-msg exit ;;
+    "$reboot")   systemctl reboot ;;
+    "$shutdown") systemctl poweroff ;;
 esac

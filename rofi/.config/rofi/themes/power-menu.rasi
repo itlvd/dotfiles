@@ -1,0 +1,86 @@
+* {
+    bg:     rgba(30, 30, 46, 0.88);
+    bg-btn: rgba(49, 50, 68, 0.90);
+    fg:     #cdd6f4;
+    accent: #89b4fa;
+    red:    #f38ba8;
+
+    background-color: transparent;
+    text-color: @fg;
+    font: "JetBrainsMono Nerd Font 14";
+}
+
+window {
+    width: 260px;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 16px;
+    background-color: @bg;
+    padding: 16px;
+    location: center;
+    anchor: center;
+}
+
+mainbox {
+    background-color: transparent;
+    spacing: 10px;
+    children: [ message, listview ];
+}
+
+message {
+    background-color: transparent;
+    padding: 0px 0px 6px 0px;
+    border: 0px 0px 1px 0px;
+    border-color: rgba(137, 180, 250, 0.3);
+}
+
+textbox {
+    text-color: @accent;
+    font: "JetBrainsMono Nerd Font Bold 12";
+    horizontal-align: 0.5;
+    background-color: transparent;
+}
+
+listview {
+    lines: 5;
+    columns: 1;
+    spacing: 6px;
+    cycle: true;
+    dynamic: false;
+    scrollbar: false;
+    background-color: transparent;
+}
+
+element {
+    border-radius: 10px;
+    padding: 11px 16px;
+    spacing: 12px;
+    background-color: @bg-btn;
+    cursor: pointer;
+}
+
+element selected.normal {
+    background-color: @accent;
+    text-color: rgba(30, 30, 46, 1);
+}
+
+element.urgent {
+    background-color: rgba(243, 139, 168, 0.18);
+}
+
+element selected.urgent {
+    background-color: @red;
+    text-color: rgba(30, 30, 46, 1);
+}
+
+element-icon {
+    size: 0px;
+    background-color: transparent;
+}
+
+element-text {
+    vertical-align: 0.5;
+    background-color: transparent;
+    text-color: inherit;
+    font: "JetBrainsMono Nerd Font 14";
+}

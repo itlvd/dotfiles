@@ -1,6 +1,6 @@
 * {
-    bg:            #1e1e2e;
-    bg-alt:        #181825;
+    bg:            rgba(30, 30, 46, 0.85);
+    bg-alt:        rgba(24, 24, 37, 0.90);
     fg:            #cdd6f4;
     fg-muted:      #6c7086;
     accent:        #89b4fa;
@@ -22,7 +22,7 @@ window {
 }
 
 mainbox {
-    background-color: @bg;
+    background-color: transparent;
     spacing: 12px;
     children: [ inputbar, listview, message ];
 }
@@ -33,6 +33,7 @@ inputbar {
     padding: 10px 14px;
     spacing: 10px;
     children: [ prompt, entry ];
+    text-color: @fg;
 }
 
 prompt {
@@ -53,7 +54,7 @@ listview {
     cycle: true;
     dynamic: true;
     scrollbar: false;
-    background-color: @bg;
+    background-color: transparent;
 }
 
 element {
