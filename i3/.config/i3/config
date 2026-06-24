@@ -101,7 +101,7 @@ floating_modifier $mod
 tiling_drag modifier titlebar
 
 # start a terminal
-bindsym $mod+Return exec --no-startup-id alacritty
+bindsym $mod+Return exec --no-startup-id kitty
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -217,7 +217,7 @@ workspace $ws5 output DP-5
 # Autostart applications
 exec --no-startup-id i3-msg 'workspace number $ws1; exec firefox'
 exec --no-startup-id i3-msg 'workspace number $ws2; exec code --ozone-platform=x11'
-# exec --no-startup-id i3-msg 'workspace number $ws3; exec alacritty'
+# exec --no-startup-id i3-msg 'workspace number $ws3; exec kitty'
 exec --no-startup-id /home/levandong/Downloads/tsetup.6.9.3/Telegram/Telegram
 exec --no-startup-id i3-msg 'workspace number $ws4; exec brave-browser --ozone-platform=x11'
 

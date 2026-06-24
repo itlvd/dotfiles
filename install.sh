@@ -60,7 +60,7 @@ apt_install() {
     pavucontrol \
     playerctl \
     brightnessctl \
-    alacritty \
+    kitty \
     feh \
     picom \
     xclip \
@@ -73,6 +73,13 @@ apt_install() {
     zsh \
     fzf \
     command-not-found \
+    ripgrep \
+    fd-find \
+    luarocks \
+    python3-pip \
+    python3-venv \
+    cmake \
+    pkg-config \
     fcitx5 \
     fcitx5-unikey \
     fcitx5-frontend-gtk4 \
@@ -240,6 +247,64 @@ install_nerd_fonts() {
   rm -rf "$tmp"
 }
 
+install_neovim() {
+  log "Installing Neovim (latest stable)..."
+
+  if command -v nvim >/dev/null 2>&1; then
+    log "Neovim already installed."
+    return
+  fi
+
+  local tmp
+  tmp="$(mktemp -d)"
+  curl -fsSLo "$tmp/nvim-linux-x86_64.tar.gz" \
+    "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz"
+  sudo tar -xzf "$tmp/nvim-linux-x86_64.tar.gz" --strip-components=1 -C /usr/local
+  rm -rf "$tmp"
+}
+
+install_nodejs() {
+  log "Installing Node.js LTS (via NodeSource)..."
+
+  if command -v node >/dev/null 2>&1; then
+    log "Node.js already installed ($(node --version))."
+    return
+  fi
+
+  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+  sudo apt install -y nodejs
+}
+
+install_lazygit() {
+  log "Installing lazygit (latest stable)..."
+
+  if command -v lazygit >/dev/null 2>&1; then
+    log "lazygit already installed."
+    return
+  fi
+
+  local version
+  version="$(curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest \
+    | grep '"tag_name"' | sed 's/.*"v\([^"]*\)".*/\1/')"
+
+  local tmp
+  tmp="$(mktemp -d)"
+  curl -fsSLo "$tmp/lazygit.tar.gz" \
+    "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${version}_Linux_x86_64.tar.gz"
+  tar -xzf "$tmp/lazygit.tar.gz" -C "$tmp" lazygit
+  sudo install "$tmp/lazygit" /usr/local/bin/lazygit
+  rm -rf "$tmp"
+}
+
+setup_fd_symlink() {
+  # fd-find installs as 'fdfind' on Debian/Ubuntu; LazyVim expects 'fd'
+  if command -v fdfind >/dev/null 2>&1 && ! command -v fd >/dev/null 2>&1; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+    log "Created fd -> fdfind symlink in ~/.local/bin"
+  fi
+}
+
 install_oh_my_zsh() {
   log "Installing Oh My Zsh and plugins..."
 
@@ -328,9 +393,10 @@ apply_dotfiles() {
   stow_module tmux
   stow_module zsh
   stow_module scripts
-  stow_module alacritty
+  stow_module kitty
   stow_module picom
   stow_module git
+  stow_module nvim
 }
 
 restore_vscode_extensions() {
@@ -447,6 +513,10 @@ main() {
   remove_snap
   install_firefox
   install_nerd_fonts
+  install_neovim
+  install_nodejs
+  install_lazygit
+  setup_fd_symlink
   install_oh_my_zsh
   apply_dotfiles
   setup_default_shell
@@ -461,6 +531,7 @@ main() {
   echo "  4. Nếu stow báo conflict, backup file cũ rồi chạy lại install.sh."
   echo "  5. Gõ tiếng Việt: logout/login, mở fcitx5-config-qt thêm Unikey,"
   echo "     rồi chuyển input bằng Ctrl+Space."
+  echo "  6. Mở nvim lần đầu để LazyVim tự cài plugins (mất ~1 phút)."
 }
 
 main "$@"
