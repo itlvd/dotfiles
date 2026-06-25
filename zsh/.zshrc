@@ -161,3 +161,4 @@ export NVM_DIR="$HOME/.nvm"
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 eval $(keychain --eval --agents ssh id_ed25519)
+export PATH=$PATH:/usr/local/go/bin
