@@ -212,7 +212,6 @@ workspace $ws2 output HDMI-0
 
 workspace $ws3 output DP-5
 workspace $ws4 output DP-5
-workspace $ws5 output DP-5
 
 # Autostart applications
 exec --no-startup-id i3-msg 'workspace number $ws1; exec firefox'
