@@ -160,3 +160,4 @@ export NVM_DIR="$HOME/.nvm"
 # fi
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+eval $(keychain --eval --agents ssh id_ed25519)
