@@ -159,6 +159,14 @@ export NVM_DIR="$HOME/.nvm"
 #   exec tmux new-session -A -s main
 # fi
 
+# Inside kitty: use kitten ssh to auto-copy terminfo to remote (fixes keyboard in xterm-kitty)
+# Outside kitty: fall back to TERM=xterm-256color so remote servers don't choke on unknown $TERM
+if [[ -n "$KITTY_WINDOW_ID" ]]; then
+  alias ssh='kitten ssh'
+else
+  alias ssh='TERM=xterm-256color ssh'
+fi
+
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 eval $(keychain --eval --agents ssh id_ed25519)
 export PATH=$PATH:/usr/local/go/bin
