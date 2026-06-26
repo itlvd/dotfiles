@@ -28,6 +28,7 @@
 
     sort = yes
     idle_threshold = 120
+    fullscreen = pushback
 
     font = JetBrainsMono Nerd Font 10
 
