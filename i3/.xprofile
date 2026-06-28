@@ -3,3 +3,5 @@
 # by the time i3 parses its config. This avoids the startup race where workspace 4
 # is created before DP-4 is online and falls back to the primary output (HDMI-0).
 xrandr --output HDMI-0 --primary --auto --output DP-5 --auto --left-of HDMI-0
+
+export GLFW_IM_MODULE=ibus
