@@ -63,6 +63,7 @@ apt_install() {
     kitty \
     feh \
     picom \
+    numlockx \
     xclip \
     xsel \
     network-manager-gnome \

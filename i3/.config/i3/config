@@ -43,6 +43,8 @@ set $crust     #11111b
 
 # Wallpaper (feh) + compositor (picom for transparency & blur).
 # pkill guard keeps a single picom instance across i3 reloads/restarts.
+# Enable the numeric keypad (NumLock) on startup.
+exec_always --no-startup-id numlockx on
 exec_always --no-startup-id feh --bg-fill ~/Pictures/Wallpapers/wallpaper.jpg
 exec_always --no-startup-id pkill -x picom; picom -b
 
